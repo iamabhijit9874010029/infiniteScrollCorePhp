@@ -8,6 +8,18 @@ $conn = new mysqli("localhost", "root", "Nopass@123", "infintescroll");
 // $sql = "SELECT * FROM posts ORDER BY id DESC LIMIT $start, $limit";
 // $result = $conn->query($sql);
 
+// $output = '';
+// while ($row = $result->fetch_assoc()) {
+//     $output .= "<div class='post' data-id='{$row['id']}'>
+//                     <h3>{$row['title']}</h3>
+//                     <p>{$row['content']}</p>
+//                 </div>";
+// }
+
+// echo $output;
+
+
+
 
 //faster way to get the last id and limit
 $limit = $_POST["limit"] ?? 10;
@@ -24,16 +36,12 @@ if ($result->num_rows == 0) {
     exit;
 }
 
-
-
 $output = '';
 while ($row = $result->fetch_assoc()) {
-  $output .= "<div class='post'>
+    $output .= "<div class='post'>
                 <h3>{$row['title']}</h3>
                 <p>{$row['content']}</p>
               </div>";
 }
 
 echo $output;
-
-
