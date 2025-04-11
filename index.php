@@ -66,6 +66,7 @@
         let limit = 10;
         let last_id = Number.MAX_SAFE_INTEGER;
         let action = 'inactive';
+        let temp = 0; // Temporary variable to store the last loaded ID
 
         function load_posts(limit, last_id) {
             $.ajax({
@@ -75,23 +76,24 @@
                     limit: limit,
                     last_id: last_id
                 },
-                success: function(data) {
-                    if (data.trim() === "No more posts") {
+                dataType: "json", // ✅ This is required to auto-parse response as JSON
+                success: function(response) {
+                    if (response.done || !response.html.trim()) {
                         $('#loader').html("No more posts");
                         action = 'active';
                     } else {
-                        $('#posts').append(data);
+                        $('#posts').append(response.html);
                         $('#loader').html("Loading...");
+                        temp = response.last_id; // Store the last loaded ID in a temporary variable
                         action = 'inactive';
-
-                        // Update last_id using the last loaded post
-                        const newIds = [...data.matchAll(/data-id="(\d+)"/g)].map(m => parseInt(m[1]));
-                        if (newIds.length) {
-                            last_id = Math.min(...newIds); // fetch the smallest ID
-                        }
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error("❌ Error:", status, error);
+                    console.log(xhr.responseText);
                 }
             });
+
         }
 
         // Initial load
@@ -106,6 +108,7 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 if ($(window).scrollTop() + $(window).height() > $(document).height() - 300 && action === 'inactive') {
+                    last_id = temp; // Use the last loaded ID from the temporary variable
                     action = 'active';
                     load_posts(limit, last_id);
                 }
